@@ -63,7 +63,7 @@ document.getElementById("cardPokemon").addEventListener('click', async (event) =
 async function mostrarDetallesPokemon(id) {
     try {
         // Redirigir a la página de detalles con el ID del Pokémon como parámetro
-        window.location.href = `/HTML/Details.html?pokemonId=${id}`;
+        window.location.href = `/Details.html?pokemonId=${id}`;
     } catch (error) {
         console.log('Problemas al obtener los detalles del Pokémon', error);
     }
