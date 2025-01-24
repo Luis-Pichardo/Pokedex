@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Pokémon</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #9d0208;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            width: 500px;
+            position: relative;
+        }
+
+        .card img {
+            max-width: 50%;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin: 10px 0;
+        }
+
+        .card p {
+            font-size: 1rem;
+            margin: 5px 0;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 15px;
+            background-color: #9d0208;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: #faa307;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Contenido de la página de detalles -->
+    <div class="card" id="detallePokemon">
+        <!-- Detalles del Pokémon se cargarán aquí -->
+        <a href="javascript:history.back()" class="back-button">X</a>
+    </div>
+
+    <script>
+        // Obtener el ID del Pokémon desde la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const pokemonId = urlParams.get('pokemonId');
+
+        // Utilizamos el ID del Pokémon para hacer una solicitud a la API y mostrar la información en la página
+        const detallePokemon = document.getElementById('detallePokemon');
+
+        // Hacer una solicitud para obtener los detalles del Pokémon con el ID
+        obtenerDetallesPokemon(pokemonId);
+
+        async function obtenerDetallesPokemon(id) {
+            try {
+                const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+                const data = await response.json();
+
+                // Mostrar la información básica del Pokémon en la página
+                detallePokemon.innerHTML = `
+                    <h2>${data.name} #${String(data.id).padStart(4, '0')}</h2>
+                    <img src="${data.sprites.other['official-artwork'].front_shiny}" alt="${data.name}">
+                    <p><strong>Height:</strong> ${data.height} m</p>
+                    <p><strong>Weight:</strong> ${data.weight} kg</p>
+                    <p><strong>Abilities:</strong> ${data.abilities.map((ability) => ability.ability.name).join(', ')}</p>
+                    <p><strong>Type:</strong> ${data.types.map((tipo) => tipo.type.name.toUpperCase()).join(', ')}</p>
+                    <p><strong>Stats:</strong></p>
+                    <ul>
+                        ${data.stats.map(stat => `<li>${stat.stat.name}: ${stat.base_stat}</li>`).join('')}
+                    </ul>
+                `;
+
+                // Obtener debilidades del Pokémon
+                const weaknesses = await obtenerDebilidades(data.types);
+
+                // Mostrar debilidades en la página
+                detallePokemon.innerHTML += `<p><strong>Weaknesses:</strong> ${weaknesses.join(', ')}</p>`;
+
+                // Añadir el botón de volver atrás dentro del contenido dinámico
+                detallePokemon.innerHTML += '<a href="javascript:history.back()" class="back-button">Volver Atrás</a>';
+            } catch (error) {
+                console.log('Problemas al obtener los detalles del Pokémon', error);
+            }
+        }
+
+        async function obtenerDebilidades(types) {
+            try {
+                // Crear una matriz para almacenar debilidades
+                let weaknesses = [];
+
+                // Hacer solicitudes adicionales para obtener información detallada sobre el tipo del Pokémon
+                for (const type of types) {
+                    const typeResponse = await fetch(`https://pokeapi.co/api/v2/type/${type.type.name}`);
+                    const typeData = await typeResponse.json();
+
+                    // Obtener debilidades específicas para cada tipo
+                    const typeWeaknesses = typeData.damage_relations.double_damage_from.map((weakness) => weakness.name);
+
+                    // Agregar debilidades específicas a la matriz general
+                    weaknesses = weaknesses.concat(typeWeaknesses);
+                }
+
+                // Eliminar duplicados y debilidades que no son específicas del Pokémon
+                weaknesses = [...new Set(weaknesses.filter((weakness) => !types.map(t => t.type.name).includes(weakness)))];
+
+                return weaknesses;
+            } catch (error) {
+                console.log('Problemas al obtener las debilidades del Pokémon', error);
+                return [];
+            }
+        }
+    </script>
+</body>
+
+</html>
