@@ -56,10 +56,7 @@ document.getElementById("cardPokemon").addEventListener('click', async (event) =
 //FUNCION PARA MOSTRAR LOS DETALLES DEL POKEMON
 async function mostrarDetallesPokemon(id) {
     try {
-        const basePath = window.location.hostname === "luis-pichardo.github.io" 
-        ? "/Pokedex/" 
-        : "./";
-        window.location.href = `${basePath}details.html?pokemonId=${id}`;
+        window.location.href = `/Pokedex/details.html?pokemonId=${id}`;
     } catch (error) {
         console.log('Problemas al obtener los detalles del Pokémon', error);
     }
