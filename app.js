@@ -1,11 +1,10 @@
-//CONSTANTES UTILIZADAS
 const pokemonList = document.querySelector("#cardPokemon");
 const urlGETPokemon = "https://pokeapi.co/api/v2/pokemon/";
 
 
-async function obtenerPokemon() { //FUNCIÓN PARA EXTRAER LOS POKEMON DE LA API
+async function obtenerPokemon() {
     try {
-        for (let i = 1; i <= 24; i++) { //BUCLE PARA TRAER LOS PRIMEROS 24 POKEMON
+        for (let i = 1; i <= 24; i++) { 
             const response = await fetch(urlGETPokemon + i);
             const data = await response.json();
 
@@ -17,13 +16,10 @@ async function obtenerPokemon() { //FUNCIÓN PARA EXTRAER LOS POKEMON DE LA API
 }
 
 
-const mostrarData = (data) => { //FUNCION PARA MOSTRAR LOS POKEMON EN LAS TARJETAS
-    // console.log(data);
+const mostrarData = (data) => {
 
     let tipoPokemon = data.types.map((tipo) => `${tipo.type.name.toUpperCase()} </br>`);
     tipoPokemon = tipoPokemon.join(''); //MAPEAR Y UNIR LOS TIPOS DE POKEMON
-    // console.log(tipoPokemon);
-
 
     const div = document.createElement("div");
     div.classList.add("col");
@@ -44,11 +40,9 @@ const mostrarData = (data) => { //FUNCION PARA MOSTRAR LOS POKEMON EN LAS TARJET
 
 };
 
-window.addEventListener('load', async () => { //EVENTO PARA MOSTRAR LOS REGISTROS CUANDO CARGA LA PÁGINA
+window.addEventListener('load', async () => {
     await obtenerPokemon();
 });
-
-//Codigo para la modal en donde se mostrara la informacion del pokemon seleccionado...
 
 //Código para manejar el clic en la tarjeta del Pokémon
 document.getElementById("cardPokemon").addEventListener('click', async (event) => {
@@ -62,8 +56,10 @@ document.getElementById("cardPokemon").addEventListener('click', async (event) =
 //FUNCION PARA MOSTRAR LOS DETALLES DEL POKEMON
 async function mostrarDetallesPokemon(id) {
     try {
-        // Redirigir a la página de detalles con el ID del Pokémon como parámetro
-        window.location.href = `/details.html?pokemonId=${id}`;
+        const basePath = window.location.hostname === "luis-pichardo.github.io" 
+        ? "/Pokedex/" 
+        : "./";
+        window.location.href = `${basePath}details.html?pokemonId=${id}`;
     } catch (error) {
         console.log('Problemas al obtener los detalles del Pokémon', error);
     }
@@ -73,27 +69,26 @@ async function mostrarDetallesPokemon(id) {
 const searchForm = document.querySelector("form[role='search']");
 const searchInput = document.querySelector('input[aria-label="Search"]');
 
-// Evita el comportamiento por defecto del formulario
 searchForm.addEventListener('submit', async (event) => {
-    event.preventDefault(); // Evita que el formulario recargue la página
-    const searchText = searchInput.value.toLowerCase().trim(); // Obtiene el texto del input
+    event.preventDefault();
+    const searchText = searchInput.value.toLowerCase().trim();
 
     if (searchText) {
-        await buscarPokemonPorNombre(searchText); // Llama a la función para buscar en el API
+        await buscarPokemonPorNombre(searchText);
     }
 });
 
 // Función para buscar un Pokémon por su nombre desde el API
 async function buscarPokemonPorNombre(nombre) {
     try {
-        const response = await fetch(`${urlGETPokemon}${nombre}`); // Llama al API con el nombre del Pokémon
+        const response = await fetch(`${urlGETPokemon}${nombre}`);
         if (!response.ok) {
-            throw new Error("No se encontró el Pokémon"); // Muestra error si no existe
+            throw new Error("No se encontró el Pokémon");
         }
 
-        const data = await response.json(); // Obtiene los datos del Pokémon
-        pokemonList.innerHTML = ""; // Limpia la lista de Pokémon antes de mostrar el resultado
-        mostrarData(data); // Muestra el Pokémon encontrado
+        const data = await response.json(); 
+        pokemonList.innerHTML = ""; 
+        mostrarData(data); 
     } catch (error) {
         console.error("Error al buscar el Pokémon:", error.message);
         alert("No se encontró el Pokémon, verifica el nombre e intenta nuevamente.");
